@@ -1,0 +1,19 @@
+[build]
+    command = "chmod a+x ./build.sh && ./build.sh"
+    publish = "public/"
+    functions = "functions/"
+
+[[redirects]]
+    from = "/api/strava/webhook"
+    to = "/.netlify/functions/api_strava_webhook"
+    status = 200
+
+[[redirects]]
+    from = "/integrations/strava/authorization-successful"
+    to = "/.netlify/functions/integrations_strava_authorization-successful"
+    status = 200
+
+[[redirects]]
+    from = "/integrations/strava/final"
+    to = "/.netlify/functions/integrations_strava_final"
+    status = 200

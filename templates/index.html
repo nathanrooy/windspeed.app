@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+{{ template "header" . }}
+
+<body>
+    <div class="container">
+        <main class="content">
+            <div>
+                <img src="/static/windspeed.svg" style="display: block; margin: auto auto;" width="100%" alt="windspeed.app logo">
+            </div>
+            <h2>Free weather details for your Strava activities!</h2>
+            <div class="connect-btn">
+                <a href="{{ .StravaAuthorizationLink }}">
+                    <img src="/static/btn_strava_connectwith_orange.svg" width="250px" alt="strava connect button">
+                </a>
+            </div>
+            <p>This is a 100% <a target="_self" href="https://github.com/nathanrooy/windspeed.app/">open source</a>, privacy preserving service. No personal details are ever requested or persisted. You can cancel your subscription at any time.</p>
+        </main>
+    </div>
+</body>
+</html>

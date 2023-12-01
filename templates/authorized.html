@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+{{ template "header" . }}
+
+<body>
+    <div class="container">
+        <main class="content">
+            <h1>Hello, {{ .firstName }}!</h1>
+            <p class="lead">Windspeed.app is now connected to your Strava profile!</p>
+            <p>Do you use the system that the rest of the world uses, or the one that only a few countries still use?</p>
+            <form action="/integrations/strava/final/" method="post">
+                <input type="hidden" name="csrf_token" value="{{ .csrfToken }}">
+                <fieldset style="margin-bottom:2rem;">
+                    <legend>Select units</legend>
+                    <div class="user-selection">
+                        <label for="units">Units:
+                            <select id="units" name="units">
+                                <option value="imperial" selected>imperial</option>
+                                <option value="metric">metric</option>
+                            </select>
+                        </label>
+                        <br/>
+                    </div>
+                </fieldset>
+                <input type="submit" value="Save settings" style="margin-bottom:1rem">
+            </form>
+        </main>
+    </div>
+</body>
+</html>
