@@ -53,7 +53,6 @@ func AddNewUser(athleteId int64, accessToken string, refreshToken string, expire
 }
 
 func updateUserTokens(db *sql.DB, tokens Tokens) {
-    log.Printf("> updating user tokens\n")
     sql := `INSERT INTO %s.%s.subscribers (id, access_token, refresh_token, expires_at) VALUES($1, $2, $3, $4) ON CONFLICT (id) DO UPDATE SET access_token = $2, refresh_token = $3, expires_at = $4;`
 	stmt, err := db.Prepare(fmt.Sprintf(sql, os.Getenv("DB_DATABASE"), DB_SCHEMA))
 	if err != nil {
@@ -61,13 +60,13 @@ func updateUserTokens(db *sql.DB, tokens Tokens) {
 	}
 	result, err := stmt.Exec(tokens.AthleteId, tokens.AccessToken, tokens.RefreshToken, tokens.ExpiresAt)
 	if err != nil {
-		log.Printf("db-err: %s\n", err)
+		log.Printf("> db-err: %s\n", err)
 	}
     rowsAffected, err := result.RowsAffected()
 	if rowsAffected == 1 {
-		log.Printf("successfully updated tokens for strava user \"%v\"\n", tokens.AthleteId)
+		log.Printf("> successfully updated tokens for strava user \"%v\"\n", tokens.AthleteId)
 	} else {
-		log.Printf("failed to update tokens for strava user \"%v\"\n", tokens.AthleteId)
+		log.Printf("> failed to update tokens for strava user \"%v\"\n", tokens.AthleteId)
 	}
 }
 
@@ -149,28 +148,21 @@ func getUserUnits(db *sql.DB, athleteId int64) string {
 }
 
 func AddWeatherDetails(athleteId int64, activityId int64) {
-    tStartMs := time.Now().UnixMilli()
     log.Printf("> adding weather details for strava user: %v, activity = %v\n", athleteId, activityId)
+    tStartMs := time.Now().UnixMilli()
 
-    // get db connection
 	db := database.Connect()
 	defer db.Close()
 
-    // get user tokens
-    log.Printf("> get current user tokens\n")
     oldTokens := getUserTokens(db, athleteId)
-
-    // check with strava if we have the latest tokens
-    log.Printf("> refresh user tokens\n")
     tokens := refreshUserTokens(oldTokens)
     
     // persist latest user tokens (if necessary)
     if tokens.ExpiresAt > oldTokens.ExpiresAt {
-        log.Printf("> tokens have expired\n")
+        log.Printf("> persisting updated tokens\n")
         updateUserTokens(db, tokens)
     }
 
-    // get activity
     activity := getActivity(activityId, tokens)
 
     // only add weather details for some activities that don't already have one...
@@ -294,6 +286,7 @@ func getActivity(activityId int64, tokens Tokens) Activity {
 }
 
 func getUserTokens(db *sql.DB, athleteId int64) Tokens {
+    log.Printf("> getting user tokens\n")
     sql := `SELECT id, access_token, refresh_token, expires_at FROM %s.%s.subscribers WHERE id = $1 LIMIT 1`
     stmt, _ := db.Prepare(fmt.Sprintf(sql, os.Getenv("DB_DATABASE"), DB_SCHEMA))
     
@@ -307,10 +300,10 @@ func getUserTokens(db *sql.DB, athleteId int64) Tokens {
 func refreshUserTokens(tokens Tokens) Tokens {
 
     if tokens.ExpiresAt > time.Now().Unix() {
-        log.Printf("> current tokens are still valid\n")
+        log.Printf("> current user tokens are still valid\n")
         return tokens
     } else {
-        log.Printf("> contacting strava for latest user tokens\n")
+        log.Printf("> tokens have expired. contacting strava for latest user tokens\n")
         
         // refresh tokens
 		params := url.Values{}
